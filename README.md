@@ -20,6 +20,14 @@ This repository contains the exact reference code for our two most critical comp
 1. **The Client Script (`script.js`):** The lightweight JavaScript snippet that our customers embed on their websites.
 2. **The Ingestion Route (`api/collect/route.ts`):** The server-side API endpoint that receives, anonymizes, and processes the incoming traffic.
 
+## 🛑 Security Note: The Expurgated Anti-Bot Shield
+
+In the `route.ts` file provided in this repository, you will notice that the `analyzeTraffic` function is empty. 
+
+In the Alternytics production environment, this function contains our proprietary "Anti-Bot Shield" – a complex set of rules, referrer blacklists, and hardware-level velocity checks (Speed Traps). Publishing our exact filtering criteria would provide bad actors with a precise instruction manual to bypass our defenses. We have kept this specific logic private to protect the integrity of the analytics data.
+
+If you are using this code for your own project, you can easily implement your own filtering logic inside the `analyzeTraffic` function.
+
 ## ⚙️ How Data is Processed & Anonymized
 
 To provide accurate analytics (like unique visitor counts) without tracking individuals, we use a robust cryptographic hashing method.
@@ -34,16 +42,3 @@ const visitor_hash = crypto
   .createHash('sha256')
   .update(`${ip}-${userAgent}-${date}-${salt}`)
   .digest('hex');
-
-  **Why this matters:**
-- **Irreversible:** SHA-256 is a one-way cryptographic function. You cannot guess the IP or User-Agent from the resulting hash.
-- **Daily Reset:** Because the `date` is included in the hash, the same visitor will generate a completely different hash the next day.
-- **Salted Security:** The `salt` is a secure environment variable. Even in the theoretical event of a database breach, the hashes cannot be reversed.
-
-## 🛑 Security Note: The Expurgated Anti-Bot Shield
-
-In the `route.ts` file provided in this repository, you will notice that the `analyzeTraffic` function is empty. 
-
-In the Alternytics production environment, this function contains our proprietary "Anti-Bot Shield" – a complex set of rules, referrer blacklists, and hardware-level velocity checks (Speed Traps). Publishing our exact filtering criteria would provide bad actors with a precise instruction manual to bypass our defenses. We have kept this specific logic private to protect the integrity of the analytics data.
-
-If you are using this code for your own project, you can easily implement your own filtering logic inside the `analyzeTraffic` function.
