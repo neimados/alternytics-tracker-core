@@ -1,6 +1,6 @@
-# Alternytics - Core Tracker & Ingestion API (Transparency Repository)
+# Alternytics - Core Tracker & Ingestion API
 
-Welcome to the Transparency Repository for **Alternytics**, a privacy-first web analytics platform. 
+**Alternytics**, a privacy-first web analytics platform. 
 
 At Alternytics, we believe that website owners should have access to powerful, actionable insights without compromising the privacy of their visitors. This repository serves as an open audit trail, allowing developers, Data Protection Officers (DPOs), and our users to inspect exactly how data is collected, processed, and anonymized before it ever reaches our databases.
 
