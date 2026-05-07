@@ -16,22 +16,12 @@ function getSecureCorsHeaders(allowedOrigin: string) {
 }
 
 export async function OPTIONS(request: Request) {
-  const requestOrigin = request.headers.get('origin');
+  const requestOrigin = request.headers.get('origin') || '*';
 
-  if (!requestOrigin) return NextResponse.json({ error: "Origine invalide" }, { status: 403 });
-
-  const cleanDomain = requestOrigin.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  
-  const { data: site } = await supabase
-    .from('sites')
-    .select('id, workspaces!inner(expires_at)')
-    .eq('domain', cleanDomain)
-    .gt('workspaces.expires_at', new Date().toISOString())
-    .single();
-
-  if (!site) return NextResponse.json({ error: "Domaine non autorisé ou abonnement expiré" }, { status: 403 });
-
-  return NextResponse.json({}, { headers: getSecureCorsHeaders(requestOrigin) });
+  return new NextResponse(null, {
+    status: 200,
+    headers: getSecureCorsHeaders(requestOrigin)
+  });
 }
 
 function parseUserAgent(ua: string) {
@@ -76,8 +66,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Origine invalide" }, { status: 403 });
     }
 
-    const cleanDomain = requestOrigin.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    corsHeaders = getSecureCorsHeaders(requestOrigin);
 
+    const cleanDomain = requestOrigin.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
     const { data: corsSite, error: corsSiteError } = await supabase
       .from('sites')
       .select('id, workspaces!inner(expires_at)')
@@ -86,10 +77,8 @@ export async function POST(request: Request) {
       .single();
 
     if (corsSiteError || !corsSite) {
-      return NextResponse.json({ error: "Accès refusé. Domaine non enregistré ou abonnement expiré." }, { status: 403 });
+      return NextResponse.json({ error: "Access denied." }, { status: 403, headers: corsHeaders });
     }
-
-    corsHeaders = getSecureCorsHeaders(requestOrigin);
     const body = await request.json();
     const { payload_type, site_id, pageview_id, exec_time } = body;
 
